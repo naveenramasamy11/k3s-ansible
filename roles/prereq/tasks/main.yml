@@ -1,4 +1,21 @@
 ---
+- name: Remove any host file and re-add them.
+  file:
+    path: /etc/hosts
+    state: '{{ item }}'
+    force: yes
+  with_items:
+  - absent
+  - touch
+
+- name: Add IP address of all hosts to all hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ hostvars[item].ansible_host }} {{ hostvars[item].inventory_hostname }} {{ hostvars[item].inventory_hostname_short }}"
+    state: present
+  with_items: "{{ groups.all }}"
+  ignore_errors: yes
+
 - name: Set SELinux to disabled state
   selinux:
     state: disabled
